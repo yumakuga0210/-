@@ -1,3 +1,6 @@
+# 教學資源 Make 2048 In Python | Full Python Game Tutorial 
+#  link: https://youtu.be/6ZyylFcjfIg?si=VqkVnZHlKgIA4u5I
+
 import pygame
 import random
 import math
@@ -19,6 +22,7 @@ BACKGROUND_COLOR = (205, 192, 180)  # 背景顏色
 FONT_COLOR = (119, 110, 101)  # 字體顏色
 
 FONT = pygame.font.SysFont("comicsans", 60, bold=True)
+GAME_OVER_FONT = pygame.font.SysFont("comicsans", 100, bold=True)
 MOVE_VEL = 20  # 字體設定
 
 WINDOW = pygame.display.set_mode((width, height))  # 高度寬度設定
@@ -178,7 +182,7 @@ def move_tiles(window, tiles, clock, direction):  # direction方向 #ceil用於�
 
         update_tiles(window, tiles, sorted_tiles)
 
-    end_move(tiles)
+    return end_move(tiles)
 
 def end_move(tiles):
     if len(tiles) == 16:
@@ -204,12 +208,22 @@ def gen_tiles():
 
     return tiles
 
+#遊戲結束
+def draw_game_over(window):
+    text = GAME_OVER_FONT.render("Game Over", 1, FONT_COLOR)
+    window.blit(
+        text,
+        (width / 2 - text.get_width() / 2, height / 2 - text.get_height() / 2),
+    )
+    pygame.display.update()
+
 # 視窗
 def main(window):
     clock = pygame.time.Clock()
     run = True
 
     tiles = gen_tiles()  # tiles:用於定位圖塊產生的位置及數字
+    game_status = "continue"
 
     while run:
         clock.tick(FPS) 
@@ -219,17 +233,20 @@ def main(window):
                 run = False
                 break
 
-            if event.type == pygame.KEYDOWN:
+            if event.type == pygame.KEYDOWN and game_status == "continue":
                 if event.key == pygame.K_a or event.key == pygame.K_LEFT:
-                    move_tiles(window, tiles, clock, "left")
+                    game_status = move_tiles(window, tiles, clock, "left")
                 if event.key == pygame.K_d or event.key == pygame.K_RIGHT:
-                    move_tiles(window, tiles, clock, "right")
+                    game_status = move_tiles(window, tiles, clock, "right")
                 if event.key == pygame.K_w or event.key == pygame.K_UP:
-                    move_tiles(window, tiles, clock, "up")
+                    game_status = move_tiles(window, tiles, clock, "up")
                 if event.key == pygame.K_s or event.key == pygame.K_DOWN:
-                    move_tiles(window, tiles, clock, "down")
+                    game_status = move_tiles(window, tiles, clock, "down")
 
             draw(window, tiles)
+
+            if game_status == "lost":
+                draw_game_over(window)
 
     pygame.quit()
 
